@@ -1,0 +1,208 @@
+﻿@page "/R_Empacados"
+
+@inject IToastService toastService
+
+<EditForm Model="producto">
+    <DataAnnotationsValidator />
+
+    <div className="Container">
+        <div class="card align-items-center">
+
+            <div class="card-header">
+                <h4>Entrada de productos empacados</h4>
+            </div>
+
+            <div class="card-body" style="width: 50rem;">
+
+                @* Id Producto *@
+                <div class="form-row align-items-center" style="margin: 20px;">
+                    <div class="col">
+                        <div class="input-group" style="width: 20rem;">
+                            <span class="input-group-text">Id</span>
+                            <InputNumber @bind-Value="empacado.EmpacadosId" class="form-control col-4" />
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-primary input-group-text" @onclick="@(() => Buscar())">
+                                    <span class="oi oi-magnifying-glass"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @* Fecha *@
+                <div class="input-group" style="margin: 20px; width: 20rem;">
+                    <span class="input-group-text">Fecha</span>
+                    <InputDate @bind-Value="empacado.FechaIngreso" Format='yyyy-MM-dd' class="form-control col-4" />
+                </div>
+
+                @* Concepto *@
+                <div class="input-group" style="margin: 20px;">
+                    <span class="input-group-text">Concepto</span>
+                    <InputText @bind-Value="empacado.Concepto" class="form-control col-4" placeholder="Concepto" />
+                </div>
+
+                @* SubCard Utilizados *@
+                <div class="card">
+
+                    <div class="card-header">
+                        <h3>Utilizados</h3>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="input-group d-flex align-items-end">
+                            <div class="flex-fill mx-2">
+                                <label>Producto</label>
+                                <InputSelect id="productoSeleccionado" @bind-Value="producto.Descripcion"
+                                    class="form-control">
+                                    <option>--Seleccione un producto--</option>
+                                    @foreach (var item in listaProducto)
+                                    {
+                                        <option value="@item.Descripcion">@item.Descripcion</option>
+
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="flex-fill mx-2" style="width: 12px;">
+                                <label>Cantidad</label>
+                                <InputNumber class="form-control" @bind-Value="utilizado.Cantidad" />
+                            </div>
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-primary input-group-text"
+                                    @onclick="AgregarUtilizado">
+                                    <span class="oi oi-plus"> Add</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        @* Tabla de detalles *@
+                        <table class="table table-bordered table-light">
+                            <thead class="thead">
+                                <tr class="table">
+                                    <th>ProductoId</th>
+                                    <th>Descripci&oacute;n</th>
+                                    <th>Cantidad</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in empacado.ProductosUtilizados)
+                                {
+                                    <tr>
+                                        <td>@item.Id</td>
+                                        <td>@item.Descripcion</td>
+                                        <td>@item.Cantidad</td>
+                                        <td><span class="btn btn-sm btn-outline-secondary oi oi-x"
+                                            @onclick="@(() => RemoverUtilizado(item))"></span></td>
+                                    </tr>
+                                }
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+
+                @* SubCard Producidos *@
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Producido</h3>
+                    </div>
+                    <div class="card-body d-flex align-items-end">
+                        <div class="flex-fill mx-2">
+                            <label>Producto</label>
+                            <InputText class="form-control" @bind-Value="Producido" placeholder="Nombre del Producto" />
+                        </div>
+                        <div class="flex-fill mx-2" style="width: 12px;">
+                            <label>Cantidad</label>
+                            <InputNumber class="form-control" @bind-Value="cantidad" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @* Botones *@
+            <div class="card-footer">
+                <div class="form-group text-center" display:inline-block>
+                    <button type="button" class="btn btn-primary input-group-text" @onclick="Nuevo">
+                        <span class="oi oi-plus"> Nuevo</span>
+                    </button>
+                    <button type="button" class="btn btn-success input-group-text" @onclick="Guardar">
+                        <span class="oi oi-check"> Guardar</span>
+                    </button>
+                    <button type="button" class="btn btn-danger input-group-text" @onclick="Eliminar">
+                        <span class="oi oi-minus"> Eliminar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Inject]
+    public ProductosBLL productosBLL { get; set; }
+    public string? Producido { get; set; }
+    public decimal cantidad { get; set; }
+    public ProductosUtilizados utilizado { get; set; } = new ProductosUtilizados();
+    public Empacados empacado { get; set; } = new Empacados();
+    public List<Productos> listaProducto { get; set; } = new List<Productos>();
+    public Productos? producto { get; set; } = new Productos();
+
+    [Inject]
+    public EmpacadosBLL empacadosBLL { get; set; }
+
+
+    protected override void OnInitialized()
+    {
+        listaProducto = productosBLL.GetList(p => true);
+    }
+    protected void Buscar()
+    {
+        if (this.empacado.EmpacadosId > 0)
+        {
+            var encontrado = empacadosBLL.Buscar(this.empacado.EmpacadosId);
+            if (encontrado != null)
+                this.empacado = encontrado;
+        }
+    }
+    public void AgregarUtilizado()
+    {
+        this.utilizado.Id = producto.ProductoId;
+        this.utilizado.Descripcion = producto.Descripcion;
+
+        this.empacado.ProductosUtilizados.Add(this.utilizado);
+        this.utilizado = new ProductosUtilizados();
+    }
+    public void RemoverUtilizado(ProductosUtilizados utilizado)
+    {
+        this.empacado.ProductosUtilizados.Remove(utilizado);
+    }
+    public void Nuevo()
+    {
+        this.empacado = new Empacados();
+        this.utilizado = new ProductosUtilizados(); 
+    }
+    public void Guardar()
+    {
+        var seGuardo = empacadosBLL.Guardar(empacado);
+        if (seGuardo)
+        {
+            toastService.ShowSuccess("Se guardó exitosamente");
+        }
+        else
+            toastService.ShowError("No se pudo guardar.");
+    }
+    public void Eliminar()
+    {
+        bool eliminado;
+        eliminado = empacadosBLL.Eliminar(empacado.EmpacadosId);
+        if (eliminado)
+        {
+            Nuevo();
+            toastService.ShowSuccess("Eliminación exitosa");
+        }
+        else
+        {
+            toastService.ShowError("Eliminación fallida");
+        }
+    }
+}

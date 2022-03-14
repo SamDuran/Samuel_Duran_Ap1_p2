@@ -1,0 +1,141 @@
+@page "/C_Detalles"
+
+@using Entidades
+@using BLL
+@inject IToastService toastService
+
+<EditForm Model="producto">
+    <DataAnnotationsValidator />
+
+    <div class="card" style="box-shadow: 8px 8px rgba(0, 0, 0, 0.26);">
+
+        <div class="card-header">
+            <h4 style="text-align: center;">Consulta de productos por presentación</h4>
+        </div>
+
+        <div class="card-body">
+
+            <form>
+                <div class="input-group d-flex align-items-end">
+
+                    <div class="flex-fill mx-2">
+                        <label>Filtro</label>
+                        <InputSelect class="form-control col-2" @bind-Value="filtro">
+                            <option value="0">ID</option>
+                            <option value="1">Descripci&oacute;n</option>
+                            <option value="2">Presentaci&oacute;n</option>
+                            <option value="3">Precio</option>
+                            <option value="4">Existencia Empaque</option>
+                        </InputSelect>
+                    </div>
+                    <div class="flex-fill mx-2">
+                        <label>B&uacute;squeda</label>
+                        <InputText class="form-control" @bind-Value="Criterio" />
+                    </div>
+
+                    <button type="button" class="btn btn-primary" @onclick="Buscar">
+                        <i class="oi oi-magnifying-glass mr-2" /> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+        <table class="table table-bordered table-light" style="box-shadow: 1px 6px rgba(0, 0, 0, 0.2);">
+            <thead class="thead">
+                <tr class="table table-bordered table-light">
+                    <th>ProductoId</th>
+                    <th>Descripci&oacute;n</th>
+                    <th>Presentaci&oacute;n</th>
+                    <th>Precio</th>
+                    <th>Existencia empaque</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in listaProductos)
+                {
+                    @foreach (var detalle in item.ProductoDetalles)
+                    {
+                        existenciaEmpaque = (int)((float)item.Existencia / (float)detalle.Cantidad);
+                        nombreProducto = item.Descripcion;
+                        <tr>
+                            <td>@detalle.ProductoId</td>
+                            <td>@nombreProducto</td>
+                            <td>@detalle.Descripcion</td>
+                            <td>@detalle.Precio</td>
+                            <td>@existenciaEmpaque</td>
+                        </tr>
+                    }
+                }
+                <th>Conteo: </th>
+                <td>@conteo</td>
+            </tbody>
+
+        </table>
+    </div>
+</EditForm>
+
+@code {
+    public Productos producto { get; set; } = new Productos();
+    public string? filtro;
+    private int existenciaEmpaque;
+    private string? nombreProducto;
+    private int conteo = 0;
+    public string? Criterio;
+    public List<Productos> listaProductos { get; set; } = new List<Productos>();
+    [Inject]
+    public ProductosBLL productosBLL { get; set; }
+    
+    protected override void OnInitialized()
+    {
+        filtro="0";
+    }
+    private void Buscar()
+    {
+        listaProductos = new List<Productos>();
+        producto = new Productos();
+        conteo = 0;
+        if (!string.IsNullOrEmpty(Criterio) || !string.IsNullOrWhiteSpace(Criterio))
+        {
+            switch (filtro)
+            {
+                case "0": //ID
+                    int ID = Utilities.ToIntConsulta(Criterio);
+                    if (ID == -1)
+                        listaProductos = productosBLL.GetList(p => true);
+                    else
+                        listaProductos = productosBLL.GetList(p => p.ProductoDetalles.Any(detalle => detalle.ProductoId==ID));
+                    break;
+                case "1": //Descripcion
+                    listaProductos = productosBLL.GetList(p => p.Descripcion.ToLower().Contains(Criterio.ToLower()));
+                    break;
+                case "2": //Presentacion
+                    listaProductos = productosBLL.GetList(p => p.ProductoDetalles.Any(Item => Item.Descripcion == Criterio));
+                    break;
+                case "3": //Precio
+                    decimal PrecioDetalle = Utilities.ToDecimal(Criterio);
+                    if (PrecioDetalle == -1)
+                        listaProductos = productosBLL.GetList(p => true);
+                    else
+                        listaProductos = productosBLL.GetList(p => p.ProductoDetalles.Any(item => item.Precio==PrecioDetalle));
+                    break;
+                case "4": //Existencia Empaque
+                    int ExistenciaDetalle = Utilities.ToIntConsulta(Criterio);
+                    if (ExistenciaDetalle == -1)
+                        listaProductos = productosBLL.GetList(p => true);
+                    else
+                        listaProductos = productosBLL.GetList(p => p.ProductoDetalles.Any(item => item.Cantidad*p.Existencia==ExistenciaDetalle));
+                    break;
+            }
+        }
+        else
+        {
+            listaProductos = productosBLL.GetList(p => true);
+        }
+        foreach (var item in listaProductos)
+        {
+            foreach (var Detalle in item.ProductoDetalles)
+            {
+                conteo++;
+            }
+        }
+    }
+}

@@ -1,0 +1,174 @@
+﻿@page "/C_Productos"
+
+@using Entidades
+@using BLL
+@using Utilities
+@inject IToastService toastService
+
+<EditForm Model="lista" OnValidSubmit="Buscar">
+    <DataAnnotationsValidator />
+
+    <div class="card" style="box-shadow: 8px 8px rgba(0, 0, 0, 0.26);">
+
+        <div class="card-header">
+            <h4 style="text-align: center;">Consulta de productos</h4>
+        </div>
+
+        <div class="card-body">
+            <form>
+                <div class="input-group d-flex align-items-end">
+
+                    <div class="input-group" style="margin-right: 28px; width: 15rem;">
+                        <span class="input-group-text">Filtro</span>
+                        <InputSelect class="form-control col-2" @bind-Value="filtro">
+                            <option value="0">ID</option>
+                            <option value="1">Descripci&oacute;n</option>
+                            <option value="2">Existencia</option>
+                            <option value="3">Costo</option>
+                            <option value="4">Valor Inventario</option>
+                            <option value="5">Precio</option>
+                            <option value="6">Ganancia</option>
+                        </InputSelect>
+                    </div>
+
+                    @* Fecha Desde *@
+                    <div class="input-group" style=" margin-right: 10px; width: 15rem;">
+                        <span class="input-group-text">Desde</span>
+                        <InputDate @bind-Value="fechaDesde" class="form-control col-4" />
+                    </div>
+
+                    @* Fecha Hasta*@
+                    <div class="input-group" style=" width: 15rem;">
+                        <span class="input-group-text">Hasta</span>
+                        <InputDate @bind-Value="fechaHasta" class="form-control col-4" />
+                    </div>
+
+                    <div class="flex-fill mx-2">
+                        <label>Busqueda</label>
+                        <InputText class="form-control" @bind-Value="Criterio" />
+                    </div>
+
+                    <button type="button" class="btn btn-primary" @onclick="Buscar">
+                        <i class="oi oi-magnifying-glass mr-2" /> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+        <table class="table table-bordered table-light">
+            <thead class="thead">
+                <tr class="table table-light">
+                    <th>ID</th>
+                    <th>Descripci&oacute;n</th>
+                    <th>Existencia</th>
+                    <th>Costo</th>
+                    <th>Valor Inventario</th>
+                    <th>Precio</th>
+                    <th>Ganancia</th>
+                    <th>Fecha Vencimiento</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in lista)
+                {
+                    Fecha = DateOnly.FromDateTime(item.FechaVencimiento);
+                    <tr>
+                        <td>@item.ProductoId</td>
+                        <td>@item.Descripcion</td>
+                        <td>@item.Existencia</td>
+                        <td>RD$ @item.Costo</td>
+                        <td>RD$ @item.ValorInventario</td>
+                        <td>RD$ @item.Precio</td>
+                        <td>@item.Ganancia%</td>
+                        <td>@Fecha</td>
+                        <td><a class="btn btn-sm btn-outline-primary oi oi-eye" href="R_Productos/@item.ProductoId"> Ver</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+</EditForm>
+
+@code {
+    public DateTime fechaDesde { get; set; } = new DateTime(2019, 12, 31);
+    public DateTime fechaHasta { get; set; } = new DateTime(2025, 12, 31);
+    public string? filtro { get; set; }
+    public DateOnly Fecha { get; set; }
+    public string? Criterio { get; set; }
+    public List<Productos> lista { get; set; } = new List<Productos>();
+
+    [Inject]
+    public ProductosBLL productosBLL { get; set; }
+
+    protected override void OnInitialized()
+    {
+        filtro="0";
+    }
+
+    private void Buscar()
+    {
+        lista = new List<Productos>();
+        if (Criterio != null)
+        {
+            switch (filtro)
+            {
+                case "0":
+                    int ID = Utilities.ToIntConsulta(Criterio);
+                    if (ID == -1)
+                        lista = productosBLL.GetList(p => p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <= fechaHasta);
+                    else
+                        lista = productosBLL.GetList(p => (p.ProductoId == ID && p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <=
+                        fechaHasta));
+                    break;
+                case "1":
+                    lista = productosBLL.GetList(p => p.Descripcion.ToLower().Contains(Criterio.ToLower()));
+                    break;
+                case "2":
+                    decimal Existencia = Utilities.ToDecimal(Criterio);
+                    if (Existencia == -1)
+                        lista = productosBLL.GetList(p => p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <= fechaHasta);
+                    else
+                        lista = productosBLL.GetList(p => (p.Existencia == Existencia && p.FechaVencimiento >= fechaDesde && p.FechaVencimiento
+                        <= fechaHasta));
+                    break;
+                case "3":
+                    decimal Costo = Utilities.ToDecimal(Criterio);
+                    if (Costo == -1)
+                        lista = productosBLL.GetList(p => p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <= fechaHasta);
+                    else
+                        lista = productosBLL.GetList(p => (p.Costo == Costo && p.FechaVencimiento >= fechaDesde && p.FechaVencimiento
+                        <= fechaHasta));
+                    break;
+                case "4":
+                    decimal ValorInventario = Utilities.ToDecimal(Criterio);
+                    if (ValorInventario == -1)
+                        lista = productosBLL.GetList(p => p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <= fechaHasta);
+                    else
+                        lista = productosBLL.GetList(p => (p.ValorInventario == ValorInventario && p.FechaVencimiento >= fechaDesde &&
+                        p.FechaVencimiento <= fechaHasta));
+                    break;
+                case "5":
+                    decimal Precio = Utilities.ToDecimal(Criterio);
+                    if (Precio == -1)
+                        lista = productosBLL.GetList(p => p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <= fechaHasta);
+                    else
+                        lista = productosBLL.GetList(p => (p.Precio == Precio && p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <=
+                        fechaHasta));
+                    break;
+                case "6":
+                    decimal Ganancia = Utilities.ToDecimal(Criterio);
+                    if (Ganancia == -1)
+                        lista = productosBLL.GetList(p => p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <= fechaHasta);
+                    else
+                        lista = productosBLL.GetList(p => (p.Ganancia == Ganancia && p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <=
+                        fechaHasta));
+                    break;
+            }
+        }
+        else
+        {
+            lista = productosBLL.GetList(p => true);
+        }
+    }
+}
