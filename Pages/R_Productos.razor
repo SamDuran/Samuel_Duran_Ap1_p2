@@ -161,7 +161,7 @@
                     <button type="button" style="margin: 5px;" class="btn btn-lg btn-primary"
                         @onclick="Nuevo">Nuevo</button>
                     <button type="submit" style="margin: 5px;" class="btn btn-lg btn-success"
-                        @onclick="Guardar">Guardar</button>
+                        >Guardar</button>
                     <button type="button" style="margin: 5px;" class="btn btn-lg btn-danger"
                         @onclick="Eliminar">Eliminar</button>
                 </div>
@@ -216,10 +216,11 @@
         this.producto.Ganancia = (((producto.Precio - producto.Costo) / producto.Costo) * 100);
         this.producto.Ganancia = Math.Round(producto.Ganancia, 2);
         this.producto.ValorInventario = (producto.Existencia * producto.Costo);
-        var seGuardo = productosBLL.Guardar(producto);
-        if (seGuardo)
+        bool seGuardo = productosBLL.Guardar(producto);
+        if(seGuardo)
         {
             toastService.ShowSuccess("Se guardó exitosamente");
+            Nuevo();
         }
         else
             toastService.ShowError("No se pudo guardar.");

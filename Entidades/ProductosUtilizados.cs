@@ -9,11 +9,11 @@ namespace Entidades{
         [Key]
         public int Id { get; set; }
         public decimal Cantidad { get; set; }
-        public int ProductosId { get; set; }
+        public int EmpacadosId {get;set;}
+        public string Descripcion {get;set;}
 
         [ForeignKey("ProductoId")] 
-        public virtual Productos producto {get;set;} = new Productos();
+        public Productos producto {get;set;} = new Productos();
 
-        public string Descripcion {get;set;}
     }
 }

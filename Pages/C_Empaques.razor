@@ -1,0 +1,132 @@
+@page "/C_Empaques"
+
+@using Entidades
+@inject IToastService toastService
+
+<EditForm Model="listaEmpacados" OnValidSubmit="Buscar">
+    <DataAnnotationsValidator />
+
+    <div class="card" style="box-shadow: 8px 8px rgba(0, 0, 0, 0.26);">
+
+        <div class="card-header">
+            <h4 style="text-align: center;">Consulta de Empaques</h4>
+        </div>
+
+        <div class="card-body">
+            <form>
+                <div class="input-group d-flex align-items-end">
+
+                    <div class="input-group" style="margin-right: 28px; width: 15rem;">
+                        <span class="input-group-text">Filtro</span>
+                        <InputSelect class="form-control col-2" @bind-Value="filtro">
+                            <option value="0">ID</option>
+                            <option value="1">Concepto</option>
+                            <option value="2">Cantidad</option>
+                        </InputSelect>
+                    </div>
+
+                    @* Fecha Desde *@
+                    <div class="input-group" style=" margin-right: 10px; width: 15rem;">
+                        <span class="input-group-text">Desde</span>
+                        <InputDate @bind-Value="fechaDesde" class="form-control col-4" />
+                    </div>
+
+                    @* Fecha Hasta*@
+                    <div class="input-group" style=" width: 15rem;">
+                        <span class="input-group-text">Hasta</span>
+                        <InputDate @bind-Value="fechaHasta" class="form-control col-4" />
+                    </div>
+
+                    <div class="flex-fill mx-2">
+                        <label>Busqueda</label>
+                        <InputText class="form-control" @bind-Value="Criterio" />
+                    </div>
+
+                    <button type="button" class="btn btn-primary" @onclick="Buscar">
+                        <i class="oi oi-magnifying-glass mr-2" /> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+        <table class="table table-bordered table-light">
+            <thead class="thead">
+                <tr class="table table-light">
+                    <th>ID</th>
+                    <th>Concepto</th>
+                    <th>Cantidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (listaEmpacados.Count == 0)
+                {
+                    <span>Tabla vacía</span>
+                }
+                else
+                {
+                    @foreach (var item in listaEmpacados)
+                    {
+                        Fecha = DateOnly.FromDateTime(item.FechaIngreso);
+                        <tr>
+                            <td>@item.EmpacadosId</td>
+                            <td>@item.Concepto</td>
+                            <td>@item.Cantidad</td>
+                            <td>@Fecha</td>
+                            <td><a class="btn btn-sm btn-outline-primary oi oi-eye" href="R_Empacados/@item.EmpacadosId">
+                                    Ver</a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+
+        </table>
+    </div>
+</EditForm>
+
+@code {
+    public string? filtro;
+    private DateTime fechaDesde { get; set; } = new DateTime(2019, 12, 31);
+    private DateTime fechaHasta { get; set; } = new DateTime(2030, 12, 31);
+    public string? Criterio;
+    private DateOnly Fecha { get; set; }
+    public Empacados empacado { get; set; } = new Empacados();
+    public List<Empacados> listaEmpacados { get; set; } = new List<Empacados>();
+    [Inject]
+    public EmpacadosBLL empacadosBLL { get; set; }
+
+    protected override void OnInitialized()
+    {
+        filtro = "0";
+    }
+    private void Buscar()
+    {
+        listaEmpacados = new List<Empacados>();
+        empacado = new Empacados();
+        if (!string.IsNullOrEmpty(Criterio) || !string.IsNullOrWhiteSpace(Criterio))
+        {
+            switch (filtro)
+            {
+                case "0": //ID
+                    int ID = Utilities.ToIntConsulta(Criterio);
+                    if (ID == -1)
+                        listaEmpacados = empacadosBLL.GetList(p => p.FechaIngreso >= fechaDesde && p.FechaIngreso <= fechaHasta);
+                    else
+                        listaEmpacados = empacadosBLL.GetList(e => e.EmpacadosId == ID && (e.FechaIngreso >= fechaDesde && e.FechaIngreso <=
+                        fechaHasta));
+                    break;
+                case "1": //Concepto
+                    listaEmpacados = empacadosBLL.GetList(e => e.Concepto.ToLower().Contains(Criterio.ToLower()) && (e.FechaIngreso >=
+                    fechaDesde && e.FechaIngreso <= fechaHasta));
+                    break;
+                case "2": //Cantidad
+                    listaEmpacados = empacadosBLL.GetList(e => e.Cantidad == Utilities.ToDecimal(Criterio) && (e.FechaIngreso >= fechaDesde
+                    && e.FechaIngreso <= fechaHasta));
+                    break;
+            }
+        }
+        else
+        {
+            listaEmpacados = empacadosBLL.GetList(e => e.FechaIngreso >= fechaDesde && e.FechaIngreso <= fechaHasta);
+        }
+    }
+}

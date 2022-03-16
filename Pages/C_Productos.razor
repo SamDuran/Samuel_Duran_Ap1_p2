@@ -92,7 +92,7 @@
 
 @code {
     public DateTime fechaDesde { get; set; } = new DateTime(2019, 12, 31);
-    public DateTime fechaHasta { get; set; } = new DateTime(2025, 12, 31);
+    public DateTime fechaHasta { get; set; } = new DateTime(2030, 12, 31);
     public string? filtro { get; set; }
     public DateOnly Fecha { get; set; }
     public string? Criterio { get; set; }
@@ -103,7 +103,7 @@
 
     protected override void OnInitialized()
     {
-        filtro="0";
+        filtro = "0";
     }
 
     private void Buscar()
@@ -114,7 +114,7 @@
             switch (filtro)
             {
                 case "0":
-                    int ID = Utilities.ToIntConsulta(Criterio);
+                    int ID = Utilities.ToIntConsulta(Criterio); 
                     if (ID == -1)
                         lista = productosBLL.GetList(p => p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <= fechaHasta);
                     else
@@ -168,7 +168,8 @@
         }
         else
         {
-            lista = productosBLL.GetList(p => true);
+            lista = productosBLL.GetList(p => p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <=
+            fechaHasta);
         }
     }
 }

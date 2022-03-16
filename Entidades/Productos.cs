@@ -16,7 +16,7 @@ namespace Entidades
 
 
         [Required(ErrorMessage = "Campo obligatorio. Se debe indicar la existencia.")]
-        [Range(0.1, int.MaxValue, ErrorMessage = "Se debe indicar la existencia del producto dentro de los rangos {1}/{2}.")]
+        [Range(0, 5000000, ErrorMessage = "Se debe indicar la existencia del producto dentro de los rangos {1}/{2}.")]
         public decimal Existencia { get; set; }
 
         [Required(ErrorMessage = "El Campo \"Costo\"está vacío. Por favor indique un costo.")]

@@ -10,6 +10,22 @@ namespace Samuel_Duran_Ap2_p2_.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Empacados",
+                columns: table => new
+                {
+                    EmpacadosId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    FechaIngreso = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Concepto = table.Column<string>(type: "TEXT", nullable: false),
+                    Cantidad = table.Column<int>(type: "INTEGER", nullable: false),
+                    ProductoId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Empacados", x => x.EmpacadosId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Productos",
                 columns: table => new
                 {
@@ -51,57 +67,15 @@ namespace Samuel_Duran_Ap2_p2_.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductosProducidos",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    EmpacadosId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Cantidad = table.Column<decimal>(type: "TEXT", nullable: false),
-                    ProductoId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Descripcion = table.Column<string>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductosProducidos", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ProductosProducidos_Productos_ProductoId",
-                        column: x => x.ProductoId,
-                        principalTable: "Productos",
-                        principalColumn: "ProductoId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Empacados",
-                columns: table => new
-                {
-                    EmpacadosId = table.Column<int>(type: "INTEGER", nullable: false),
-                    FechaIngreso = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Concepto = table.Column<string>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Empacados", x => x.EmpacadosId);
-                    table.ForeignKey(
-                        name: "FK_Empacados_ProductosProducidos_EmpacadosId",
-                        column: x => x.EmpacadosId,
-                        principalTable: "ProductosProducidos",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ProductosUtilizados",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Cantidad = table.Column<decimal>(type: "TEXT", nullable: false),
-                    ProductosId = table.Column<int>(type: "INTEGER", nullable: false),
-                    ProductoId = table.Column<int>(type: "INTEGER", nullable: false),
+                    EmpacadosId = table.Column<int>(type: "INTEGER", nullable: false),
                     Descripcion = table.Column<string>(type: "TEXT", nullable: false),
-                    EmpacadosId = table.Column<int>(type: "INTEGER", nullable: true)
+                    ProductoId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -110,7 +84,8 @@ namespace Samuel_Duran_Ap2_p2_.Migrations
                         name: "FK_ProductosUtilizados_Empacados_EmpacadosId",
                         column: x => x.EmpacadosId,
                         principalTable: "Empacados",
-                        principalColumn: "EmpacadosId");
+                        principalColumn: "EmpacadosId",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ProductosUtilizados_Productos_ProductoId",
                         column: x => x.ProductoId,
@@ -122,11 +97,6 @@ namespace Samuel_Duran_Ap2_p2_.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_ProductoDetalles_ProductoId",
                 table: "ProductoDetalles",
-                column: "ProductoId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProductosProducidos_ProductoId",
-                table: "ProductosProducidos",
                 column: "ProductoId");
 
             migrationBuilder.CreateIndex(
@@ -150,9 +120,6 @@ namespace Samuel_Duran_Ap2_p2_.Migrations
 
             migrationBuilder.DropTable(
                 name: "Empacados");
-
-            migrationBuilder.DropTable(
-                name: "ProductosProducidos");
 
             migrationBuilder.DropTable(
                 name: "Productos");

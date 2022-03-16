@@ -20,6 +20,10 @@ namespace Samuel_Duran_Ap2_p2_.Migrations
             modelBuilder.Entity("Entidades.Empacados", b =>
                 {
                     b.Property<int>("EmpacadosId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Cantidad")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Concepto")
@@ -28,6 +32,9 @@ namespace Samuel_Duran_Ap2_p2_.Migrations
 
                     b.Property<DateTime>("FechaIngreso")
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("ProductoId")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("EmpacadosId");
 
@@ -93,7 +100,7 @@ namespace Samuel_Duran_Ap2_p2_.Migrations
                     b.ToTable("Productos");
                 });
 
-            modelBuilder.Entity("Entidades.ProductosProducidos", b =>
+            modelBuilder.Entity("Entidades.ProductosUtilizados", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -114,51 +121,11 @@ namespace Samuel_Duran_Ap2_p2_.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductoId");
-
-                    b.ToTable("ProductosProducidos");
-                });
-
-            modelBuilder.Entity("Entidades.ProductosUtilizados", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<decimal>("Cantidad")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Descripcion")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("EmpacadosId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ProductoId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ProductosId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
                     b.HasIndex("EmpacadosId");
 
                     b.HasIndex("ProductoId");
 
                     b.ToTable("ProductosUtilizados");
-                });
-
-            modelBuilder.Entity("Entidades.Empacados", b =>
-                {
-                    b.HasOne("Entidades.ProductosProducidos", "ProductosProducidos")
-                        .WithMany()
-                        .HasForeignKey("EmpacadosId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ProductosProducidos");
                 });
 
             modelBuilder.Entity("Entidades.ProductoDetalles", b =>
@@ -170,22 +137,13 @@ namespace Samuel_Duran_Ap2_p2_.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Entidades.ProductosProducidos", b =>
-                {
-                    b.HasOne("Entidades.Productos", "Producto")
-                        .WithMany()
-                        .HasForeignKey("ProductoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Producto");
-                });
-
             modelBuilder.Entity("Entidades.ProductosUtilizados", b =>
                 {
                     b.HasOne("Entidades.Empacados", null)
                         .WithMany("ProductosUtilizados")
-                        .HasForeignKey("EmpacadosId");
+                        .HasForeignKey("EmpacadosId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Entidades.Productos", "producto")
                         .WithMany()

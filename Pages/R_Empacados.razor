@@ -1,8 +1,10 @@
 ﻿@page "/R_Empacados"
+@page "/R_Empacados/{EmpaqueId:int}"
 
 @inject IToastService toastService
+@using Utilities
 
-<EditForm Model="producto">
+<EditForm Model="empacado" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
 
     <div className="Container">
@@ -21,7 +23,8 @@
                             <span class="input-group-text">Id</span>
                             <InputNumber @bind-Value="empacado.EmpacadosId" class="form-control col-4" />
                             <div class="input-group-append">
-                                <button type="button" class="btn btn-primary input-group-text" @onclick="@(() => Buscar())">
+                                <button type="button" class="btn btn-primary input-group-text"
+                                    @onclick="@(() => Buscar())">
                                     <span class="oi oi-magnifying-glass"></span>
                                 </button>
                             </div>
@@ -52,13 +55,11 @@
                         <div class="input-group d-flex align-items-end">
                             <div class="flex-fill mx-2">
                                 <label>Producto</label>
-                                <InputSelect id="productoSeleccionado" @bind-Value="producto.Descripcion"
-                                    class="form-control">
-                                    <option>--Seleccione un producto--</option>
+                                <InputSelect id="productoSeleccionado" @bind-Value="numeroId" class="form-control">
+                                    <option hidden selected>--Seleccione un producto a utilizar--</option>
                                     @foreach (var item in listaProducto)
                                     {
-                                        <option value="@item.Descripcion">@item.Descripcion</option>
-
+                                        <option value="@item.ProductoId.ToString()">@item.Descripcion</option>
                                     }
                                 </InputSelect>
                             </div>
@@ -110,11 +111,18 @@
                     <div class="card-body d-flex align-items-end">
                         <div class="flex-fill mx-2">
                             <label>Producto</label>
-                            <InputText class="form-control" @bind-Value="Producido" placeholder="Nombre del Producto" />
+                            <InputSelect id="producidoSeleccionado" @bind-Value="empacado.ProductoId"
+                                class="form-control">
+                                <option hidden selected>--Seleccione un producto a producir--</option>
+                                @foreach (var item in listaProducto)
+                                {
+                                    <option value="@item.ProductoId">@item.Descripcion</option>
+                                }
+                            </InputSelect>
                         </div>
                         <div class="flex-fill mx-2" style="width: 12px;">
                             <label>Cantidad</label>
-                            <InputNumber class="form-control" @bind-Value="cantidad" />
+                            <InputNumber class="form-control" @bind-Value="empacado.Cantidad" />
                         </div>
                     </div>
                 </div>
@@ -125,7 +133,7 @@
                     <button type="button" class="btn btn-primary input-group-text" @onclick="Nuevo">
                         <span class="oi oi-plus"> Nuevo</span>
                     </button>
-                    <button type="button" class="btn btn-success input-group-text" @onclick="Guardar">
+                    <button type="submit" class="btn btn-success input-group-text" @onclick="Guardar">
                         <span class="oi oi-check"> Guardar</span>
                     </button>
                     <button type="button" class="btn btn-danger input-group-text" @onclick="Eliminar">
@@ -140,19 +148,22 @@
 @code {
     [Inject]
     public ProductosBLL productosBLL { get; set; }
-    public string? Producido { get; set; }
-    public decimal cantidad { get; set; }
-    public ProductosUtilizados utilizado { get; set; } = new ProductosUtilizados();
-    public Empacados empacado { get; set; } = new Empacados();
-    public List<Productos> listaProducto { get; set; } = new List<Productos>();
-    public Productos? producto { get; set; } = new Productos();
-
     [Inject]
     public EmpacadosBLL empacadosBLL { get; set; }
-
+    private string? numeroId { get; set; }
+    private string? numeroId2 { get; set; }
+    public ProductosUtilizados utilizado { get; set; } = new ProductosUtilizados();
+    public Productos producido { get; set; } = new Productos();
+    public Empacados empacado { get; set; } = new Empacados();
+    public List<Productos> listaProducto { get; set; } = new List<Productos>();
+    public Productos producto { get; set; } = new Productos();
+    [Parameter]
+    public int EmpaqueId { get; set; }
 
     protected override void OnInitialized()
     {
+        this.empacado.EmpacadosId = EmpaqueId;
+        Buscar();
         listaProducto = productosBLL.GetList(p => true);
     }
     protected void Buscar()
@@ -162,15 +173,29 @@
             var encontrado = empacadosBLL.Buscar(this.empacado.EmpacadosId);
             if (encontrado != null)
                 this.empacado = encontrado;
+            else
+                toastService.ShowError($"No se encontró el empaque con ID {empacado.EmpacadosId}");
         }
     }
     public void AgregarUtilizado()
     {
+        this.producto = productosBLL.Buscar(Utilities.ToIntConsulta(numeroId));
+        this.utilizado.producto.ProductoId = producto.ProductoId;
         this.utilizado.Id = producto.ProductoId;
         this.utilizado.Descripcion = producto.Descripcion;
+        bool esta = empacado.ProductosUtilizados.Any(p => p.Id == utilizado.Id);
+        if (!esta) //si es nuevo se agrega como tal
+            this.empacado.ProductosUtilizados.Add(this.utilizado);
 
-        this.empacado.ProductosUtilizados.Add(this.utilizado);
+        else //si ya existe se le suma la cantidad (para evitar repetir utilizados)
+        {
+            var buscado = empacado.ProductosUtilizados.Find(p => p.Id == utilizado.Id);
+            utilizado.Cantidad += buscado.Cantidad;
+            this.empacado.ProductosUtilizados.Remove(buscado);
+            this.empacado.ProductosUtilizados.Add(this.utilizado);
+        }
         this.utilizado = new ProductosUtilizados();
+        this.producto = new Productos();
     }
     public void RemoverUtilizado(ProductosUtilizados utilizado)
     {
@@ -179,10 +204,11 @@
     public void Nuevo()
     {
         this.empacado = new Empacados();
-        this.utilizado = new ProductosUtilizados(); 
+        this.utilizado = new ProductosUtilizados();
     }
     public void Guardar()
     {
+
         var seGuardo = empacadosBLL.Guardar(empacado);
         if (seGuardo)
         {
