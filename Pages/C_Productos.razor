@@ -68,21 +68,27 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in lista)
+                @if(lista.Count==0)
                 {
-                    Fecha = DateOnly.FromDateTime(item.FechaVencimiento);
-                    <tr>
-                        <td>@item.ProductoId</td>
-                        <td>@item.Descripcion</td>
-                        <td>@item.Existencia</td>
-                        <td>RD$ @item.Costo</td>
-                        <td>RD$ @item.ValorInventario</td>
-                        <td>RD$ @item.Precio</td>
-                        <td>@item.Ganancia%</td>
-                        <td>@Fecha</td>
-                        <td><a class="btn btn-sm btn-outline-primary oi oi-eye" href="R_Productos/@item.ProductoId"> Ver</a>
-                        </td>
-                    </tr>
+                    <span>Tabla vacía</span>
+                }else
+                {
+                    @foreach (var item in lista)
+                    {
+                        Fecha = DateOnly.FromDateTime(item.FechaVencimiento);
+                        <tr>
+                            <td>@item.ProductoId</td>
+                            <td>@item.Descripcion</td>
+                            <td>@item.Existencia</td>
+                            <td>RD$ @item.Costo</td>
+                            <td>RD$ @item.ValorInventario</td>
+                            <td>RD$ @item.Precio</td>
+                            <td>@item.Ganancia%</td>
+                            <td>@Fecha</td>
+                            <td><a class="btn btn-sm btn-outline-primary oi oi-eye" href="R_Productos/@item.ProductoId"> Ver</a>
+                            </td>
+                        </tr>
+                    }
                 }
             </tbody>
 

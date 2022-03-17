@@ -5,7 +5,7 @@ using DAL;
 
 namespace BLL
 {
-    public partial class ProductosBLL
+    public partial class ProductosBLL 
     {
         private Contexto _contexto;
         public ProductosBLL(Contexto contexto)
@@ -70,7 +70,11 @@ namespace BLL
             Productos? producto;
             try
             {
-                producto = _contexto.Productos.Include(x => x.ProductoDetalles).Where( p => p.ProductoId == Id).SingleOrDefault();
+                producto = _contexto.Productos
+                .Include(x => x.ProductoDetalles)
+                .Where( p => p.ProductoId == Id)
+                .AsNoTracking()
+                .SingleOrDefault();
             }
             catch (Exception e)
             {
@@ -101,7 +105,11 @@ namespace BLL
         {
             List<Productos> Lista = new List<Productos>();
             try{
-                Lista = _contexto.Productos.Include(x => x.ProductoDetalles).Where(criterio).ToList();
+                Lista = _contexto.Productos
+                .Include(x => x.ProductoDetalles)
+                .Where(criterio)
+                .AsNoTracking()
+                .ToList();
             }catch(Exception e)
             {
                 throw e;

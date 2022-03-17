@@ -53,7 +53,9 @@
                 <tr class="table table-light">
                     <th>ID</th>
                     <th>Concepto</th>
+                    <th>Producto Producido</th>
                     <th>Cantidad</th>
+                    <th>Fecha de producci&oacute;n</th>
                 </tr>
             </thead>
             <tbody>
@@ -66,9 +68,11 @@
                     @foreach (var item in listaEmpacados)
                     {
                         Fecha = DateOnly.FromDateTime(item.FechaIngreso);
+                        producido = productosBLL.Buscar(item.ProductoId);
                         <tr>
                             <td>@item.EmpacadosId</td>
                             <td>@item.Concepto</td>
+                            <td>@producido.Descripcion</td>
                             <td>@item.Cantidad</td>
                             <td>@Fecha</td>
                             <td><a class="btn btn-sm btn-outline-primary oi oi-eye" href="R_Empacados/@item.EmpacadosId">
@@ -88,11 +92,14 @@
     private DateTime fechaDesde { get; set; } = new DateTime(2019, 12, 31);
     private DateTime fechaHasta { get; set; } = new DateTime(2030, 12, 31);
     public string? Criterio;
+    public Productos? producido { get; set; }
     private DateOnly Fecha { get; set; }
     public Empacados empacado { get; set; } = new Empacados();
     public List<Empacados> listaEmpacados { get; set; } = new List<Empacados>();
     [Inject]
     public EmpacadosBLL empacadosBLL { get; set; }
+    [Inject]
+    public ProductosBLL productosBLL {get; set;}
 
     protected override void OnInitialized()
     {
@@ -119,7 +126,7 @@
                     fechaDesde && e.FechaIngreso <= fechaHasta));
                     break;
                 case "2": //Cantidad
-                    listaEmpacados = empacadosBLL.GetList(e => e.Cantidad == Utilities.ToDecimal(Criterio) && (e.FechaIngreso >= fechaDesde
+                    listaEmpacados = empacadosBLL.GetList(e => e.Cantidad == Utilities.ToIntConsulta(Criterio) && (e.FechaIngreso >= fechaDesde
                     && e.FechaIngreso <= fechaHasta));
                     break;
             }

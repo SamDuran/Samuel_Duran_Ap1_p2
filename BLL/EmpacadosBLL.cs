@@ -53,7 +53,7 @@ namespace DAL
             }
             return paso;
         }
-        private bool Modificar(Empacados empacado)
+        private bool Modificar(Empacados empacado) 
         {
             bool paso = false;
 
@@ -92,7 +92,7 @@ namespace DAL
             }
             return paso;
         }
-        public Empacados Buscar(int id)
+        public Empacados? Buscar(int id)
         {
             Empacados? empacado;
 
@@ -103,6 +103,8 @@ namespace DAL
                 .Where( e => e.EmpacadosId == id)
                 .Include( x => x.ProductosUtilizados)
                 .ThenInclude( x => x.producto)
+                .ThenInclude( x => x.ProductoDetalles)
+                .AsNoTracking()
                 .SingleOrDefault();
             }
             catch (Exception)
@@ -142,7 +144,13 @@ namespace DAL
             List<Empacados> Lista = new List<Empacados>();
             try
             {
-                Lista = _contexto.Empacados.Include(x => x.ProductosUtilizados).Where(criterio).ToList();
+                Lista = _contexto.Empacados
+                .Include(x => x.ProductosUtilizados)
+                .ThenInclude(x => x.producto)
+                .ThenInclude(x => x.ProductoDetalles)
+                .Where(criterio)
+                .AsNoTracking()
+                .ToList();
             }
             catch (Exception e)
             {

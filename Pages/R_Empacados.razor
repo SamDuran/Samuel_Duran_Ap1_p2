@@ -133,7 +133,7 @@
                     <button type="button" class="btn btn-primary input-group-text" @onclick="Nuevo">
                         <span class="oi oi-plus"> Nuevo</span>
                     </button>
-                    <button type="submit" class="btn btn-success input-group-text" @onclick="Guardar">
+                    <button type="submit" class="btn btn-success input-group-text">
                         <span class="oi oi-check"> Guardar</span>
                     </button>
                     <button type="button" class="btn btn-danger input-group-text" @onclick="Eliminar">
@@ -151,9 +151,7 @@
     [Inject]
     public EmpacadosBLL empacadosBLL { get; set; }
     private string? numeroId { get; set; }
-    private string? numeroId2 { get; set; }
     public ProductosUtilizados utilizado { get; set; } = new ProductosUtilizados();
-    public Productos producido { get; set; } = new Productos();
     public Empacados empacado { get; set; } = new Empacados();
     public List<Productos> listaProducto { get; set; } = new List<Productos>();
     public Productos producto { get; set; } = new Productos();
@@ -180,7 +178,7 @@
     public void AgregarUtilizado()
     {
         this.producto = productosBLL.Buscar(Utilities.ToIntConsulta(numeroId));
-        this.utilizado.producto.ProductoId = producto.ProductoId;
+        this.utilizado.producto = producto;
         this.utilizado.Id = producto.ProductoId;
         this.utilizado.Descripcion = producto.Descripcion;
         bool esta = empacado.ProductosUtilizados.Any(p => p.Id == utilizado.Id);
@@ -208,7 +206,9 @@
     }
     public void Guardar()
     {
-
+        this.producto= new Productos();
+        var producido = productosBLL.Buscar(this.empacado.ProductoId);
+        producido.ValorInventario = producido.Existencia*producido.Costo;
         var seGuardo = empacadosBLL.Guardar(empacado);
         if (seGuardo)
         {
