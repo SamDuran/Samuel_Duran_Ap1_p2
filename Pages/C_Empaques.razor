@@ -104,6 +104,7 @@
     protected override void OnInitialized()
     {
         filtro = "0";
+        listaEmpacados = empacadosBLL.GetList(e => true);
     }
     private void Buscar()
     {

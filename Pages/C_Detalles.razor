@@ -87,6 +87,7 @@
     protected override void OnInitialized()
     {
         filtro="0";
+        listaProductos = productosBLL.GetList(p => true);
     }
     private void Buscar()
     {
