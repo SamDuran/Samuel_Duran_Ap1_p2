@@ -20,7 +20,7 @@
                 <div class="form-row align-items-center" style="margin: 20px;">
                     <div class="col">
                         <div class="input-group" style="width: 20rem;">
-                            <span class="input-group-text">Id</span>
+                            <span class="input-group-text" style="width: 100px;">Id</span>
                             <InputNumber @bind-Value="empacado.EmpacadosId" class="form-control col-4" />
                             <div class="input-group-append">
                                 <button type="button" class="btn btn-primary input-group-text"
@@ -34,13 +34,13 @@
 
                 @* Fecha *@
                 <div class="input-group" style="margin: 20px; width: 20rem;">
-                    <span class="input-group-text">Fecha</span>
+                    <span class="input-group-text" style="width: 100px;">Fecha</span>
                     <InputDate @bind-Value="empacado.FechaIngreso" Format='yyyy-MM-dd' class="form-control col-4" />
                 </div>
 
                 @* Concepto *@
                 <div class="input-group" style="margin: 20px;">
-                    <span class="input-group-text">Concepto</span>
+                    <span class="input-group-text" style="width: 100px;">Concepto</span>
                     <InputText @bind-Value="empacado.Concepto" class="form-control col-4" placeholder="Concepto" />
                 </div>
 
@@ -100,6 +100,13 @@
                             </tbody>
 
                         </table>
+                        <div Class="form-group" style="margin: 22px;">
+                            <div class="input-group">
+                                <span class="input-group-text" style="width: 160px;">Peso Total (Gr)</span>
+                                <InputNumber readonly class="form-control" @bind-Value="empacado.Peso" />
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -111,9 +118,8 @@
                     <div class="card-body d-flex align-items-end">
                         <div class="flex-fill mx-2">
                             <label>Producto</label>
-                            <InputSelect id="producidoSeleccionado" @bind-Value="empacado.ProductoId"
-                                class="form-control">
-                                <option hidden selected>--Seleccione un producto a producir--</option>
+                            <InputSelect id="producidas" @bind-Value="empacado.ProductoId" class="form-control">
+                                <option value="0" selected hidden>--Seleccione un producto a producir--</option>
                                 @foreach (var item in listaProducto)
                                 {
                                     <option value="@item.ProductoId">@item.Descripcion</option>
@@ -181,6 +187,7 @@
         this.utilizado.producto = producto;
         this.utilizado.Id = producto.ProductoId;
         this.utilizado.Descripcion = producto.Descripcion;
+        empacado.Peso += utilizado.Cantidad*utilizado.producto.Peso;
         bool esta = empacado.ProductosUtilizados.Any(p => p.Id == utilizado.Id);
         if (!esta) //si es nuevo se agrega como tal
             this.empacado.ProductosUtilizados.Add(this.utilizado);
@@ -198,6 +205,7 @@
     public void RemoverUtilizado(ProductosUtilizados utilizado)
     {
         this.empacado.ProductosUtilizados.Remove(utilizado);
+        empacado.Peso-= utilizado.Cantidad*utilizado.producto.Peso;
     }
     public void Nuevo()
     {
@@ -206,16 +214,21 @@
     }
     public void Guardar()
     {
-        this.producto= new Productos();
+        this.producto = new Productos();
         var producido = productosBLL.Buscar(this.empacado.ProductoId);
-        producido.ValorInventario = producido.Existencia*producido.Costo;
-        var seGuardo = empacadosBLL.Guardar(empacado);
-        if (seGuardo)
+        producido.ValorInventario = producido.Existencia * producido.Costo;
+        if (Validar())
         {
-            toastService.ShowSuccess("Se guardó exitosamente");
+            var seGuardo = empacadosBLL.Guardar(empacado);
+            if (seGuardo)
+            {
+                toastService.ShowSuccess("Se guardó exitosamente");
+            }
+            else
+                toastService.ShowError("No se pudo guardar.");
+        }else{
+            toastService.ShowInfo("Se desea producir un peso invalido. Por favor verifique el peso de los utilizados y el producido.");
         }
-        else
-            toastService.ShowError("No se pudo guardar.");
     }
     public void Eliminar()
     {
@@ -230,5 +243,13 @@
         {
             toastService.ShowError("Eliminación fallida");
         }
+    }
+    public bool Validar()
+    {
+        var producido = productosBLL.Buscar(this.empacado.ProductoId);
+        if (empacado.Peso > producido.Peso*empacado.Cantidad) 
+            return false;
+        else
+            return true;
     }
 }

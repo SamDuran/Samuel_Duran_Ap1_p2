@@ -11,6 +11,7 @@ namespace Entidades
         public DateTime FechaIngreso { get; set; } 
         public string Concepto { get; set; }
         public int Cantidad {get;set;}
+        public decimal Peso {get;set;}
 
         [ForeignKey("EmpacadosId")]
         public virtual List<ProductosUtilizados> ProductosUtilizados {get;set;} = new List<ProductosUtilizados>();

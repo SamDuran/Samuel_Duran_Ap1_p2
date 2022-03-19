@@ -46,12 +46,21 @@
                     </div>
                 </div>
 
-                @* EXISTENCIA *@
+                @* EXISTENCIA Y PESO *@
                 <div Class="form-group" style="margin: 22px;">
-                    <div class="input-group">
-                        <span class="input-group-text" style="width: 160px;">Existencia</span>
-                        <InputNumber id="existencia" class="form-control" @bind-Value="producto.Existencia" />
-                        <ValidationMessage For="@(() => producto.Existencia)" />
+                    <div class="input-group d-flix align-items-end">
+                        <div Class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-text" style="width: 160px;">Existencia</span>
+                                <InputNumber  style="width: 130px;" class="form-control" @bind-Value="producto.Existencia" />
+                            </div>
+                        </div>
+                        <div Class="form-group">
+                            <div class="input-group" style=" margin-left: 22px;">
+                                <span class="input-group-text" style="width: 100px;">Peso (Gr)</span>
+                                <InputNumber class="form-control" @bind-Value="producto.Peso" />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -107,7 +116,8 @@
                                     <div class="input-group d-flex align-items-end">
                                         <div class="flex-fill mx-2">
                                             <label>Descripci&oacute;n</label>
-                                            <InputText class="form-control" @bind-Value="productoDetalle.Descripcion" placeholder="Descripción"/>
+                                            <InputText class="form-control" @bind-Value="productoDetalle.Descripcion"
+                                                placeholder="Descripción" />
                                         </div>
 
                                         <div class="flex-fill mx-2" style="width: 80px;">
@@ -160,12 +170,12 @@
                 <div class="form-group text-center" display: inline-block>
                     <button type="button" style="margin: 5px;" class="btn btn-lg btn-primary"
                         @onclick="Nuevo">Nuevo</button>
-                    <button type="submit" style="margin: 5px;" class="btn btn-lg btn-success"
-                        >Guardar</button>
+                    <button type="submit" style="margin: 5px;" class="btn btn-lg btn-success">Guardar</button>
                     <button type="button" style="margin: 5px;" class="btn btn-lg btn-danger"
                         @onclick="Eliminar">Eliminar</button>
                 </div>
             </div>
+
         </div>
     </div>
 </EditForm>
@@ -217,7 +227,7 @@
         this.producto.Ganancia = Math.Round(producto.Ganancia, 2);
         this.producto.ValorInventario = (producto.Existencia * producto.Costo);
         bool seGuardo = productosBLL.Guardar(producto);
-        if(seGuardo)
+        if (seGuardo)
         {
             toastService.ShowSuccess("Se guardó exitosamente");
         }

@@ -14,7 +14,6 @@ namespace Entidades
         [MaxLength(35, ErrorMessage = "La descripción no debe pasar de {1} caractéres.")]
         public string Descripcion { get; set; }
 
-
         [Required(ErrorMessage = "Campo obligatorio. Se debe indicar la existencia.")]
         [Range(0, 5000000, ErrorMessage = "Se debe indicar la existencia del producto dentro de los rangos {1}/{2}.")]
         public decimal Existencia { get; set; }
@@ -23,12 +22,14 @@ namespace Entidades
         [Range(1, int.MaxValue, ErrorMessage = "El costo debe estar dentro del rango permitido {1}/{2}.")] 
         public decimal Costo { get; set; }
 
+        [Required(ErrorMessage = "El campo está vacío. Por favor indique un peso en Kg.")]
+        [Range(0.2, 8987898, ErrorMessage = "El peso debe estar dentro de los intervalos {1}/{2}")]
+        public decimal Peso { get; set; }
         public decimal ValorInventario { get; set; }
 
         [Required(ErrorMessage = "Campo obligatorio. Se debe indicar el precio.")]
         [Range(1, int.MaxValue, ErrorMessage = "Se debe indicar el precio del producto dentro de los rangos {1}/{2}.")]
         public decimal Precio { get; set; }
-        
         public decimal Ganancia { get; set; }
 
         public DateTime FechaVencimiento { get; set; }
