@@ -56,6 +56,7 @@
                     <th>Producto Producido</th>
                     <th>Cantidad</th>
                     <th>Fecha de producci&oacute;n</th>
+                    <th><span style="Opacity: 0.7;">Revisi&oacute;n</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -72,7 +73,8 @@
                         <tr>
                             <td>@item.EmpacadosId</td>
                             <td>@item.Concepto</td>
-                            <td>@producido.Descripcion</td>
+                            <td>@producido.Descripcion  --|<a class="btn btn-sm btn-outline-primary oi oi-eye" href="R_Productos/@item.ProductoId">
+                                    Revisar</a>|--</td>
                             <td>@item.Cantidad</td>
                             <td>@Fecha</td>
                             <td><a class="btn btn-sm btn-outline-primary oi oi-eye" href="R_Empacados/@item.EmpacadosId">

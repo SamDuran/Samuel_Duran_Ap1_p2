@@ -30,10 +30,10 @@
                     </div>
                 </div>
 
-                @* Fecha vencimiento *@
+                @* Fecha Registro *@
                 <div class="input-group" style="margin: 20px; width: 25rem;">
-                    <span class="input-group-text" style="width: 160px;">Fecha Vencimiento</span>
-                    <InputDate @bind-Value="producto.FechaVencimiento" Format='yyyy-MM-dd' class="form-control col-4" />
+                    <span class="input-group-text" style="width: 160px;">Fecha Registro</span>
+                    <InputDate @bind-Value="producto.FechaRegistro" class="form-control col-4" />
                 </div>
 
                 @* DESCRIPCION *@
@@ -52,7 +52,7 @@
                         <div Class="form-group">
                             <div class="input-group">
                                 <span class="input-group-text" style="width: 160px;">Existencia</span>
-                                <InputNumber  style="width: 130px;" class="form-control" @bind-Value="producto.Existencia" />
+                                <InputNumber  style="width: 130px;" class="form-control" @bind-Value="producto.Existencia" @onblur="Existencia_Or_Costo_Changed"/>
                             </div>
                         </div>
                         <div Class="form-group">
@@ -68,7 +68,7 @@
                 <div Class="form-group" style="margin: 22px;">
                     <div class="input-group">
                         <span class="input-group-text" style="width: 160px;">Costo</span>
-                        <InputNumber id="costo" class="form-control" @bind-Value="producto.Costo" />
+                        <InputNumber id="costo" class="form-control" @bind-Value="producto.Costo" @onblur="Costo_Changed"/>
                         <ValidationMessage For="@(() => producto.Costo)" />
                     </div>
                 </div>
@@ -86,7 +86,7 @@
                 <div Class="form-group" style="margin: 22px;">
                     <div class="input-group">
                         <span class="input-group-text" style="width: 160px;">Precio</span>
-                        <InputNumber class="form-control" @bind-Value="producto.Precio" />
+                        <InputNumber class="form-control" @bind-Value="producto.Precio" @onblur="Precio_Or_Costo_Changed"/>
                         <ValidationMessage For="@(() => producto.Precio)" />
                     </div>
                 </div>
@@ -95,7 +95,7 @@
                 <div Class="form-group" style="margin: 22px;">
                     <div class="input-group" style="width: 25rem;">
                         <span class="input-group-text" style="width: 160px;">Ganancia</span>
-                        <InputNumber @bind-Value="producto.Ganancia" readonly class="form-control col-4" />
+                        <InputNumber @bind-Value="producto.Ganancia" @onblur="GananciaChanged" class="form-control col-4" />
                         <span class="input-group-text">%</span>
                         <ValidationMessage For="@(() => producto.Ganancia)" />
                     </div>
@@ -208,6 +208,28 @@
             }
         }
     }
+    private void Existencia_Or_Costo_Changed()
+    {
+        producto.ValorInventario = producto.Existencia * producto.Costo;
+    }
+    private void Costo_Changed()
+    {
+        Existencia_Or_Costo_Changed();
+        Precio_Or_Costo_Changed();
+    }
+    private void Precio_Or_Costo_Changed()
+    {
+        Existencia_Or_Costo_Changed();
+        if(producto.Costo!=0)
+        {
+            this.producto.Ganancia = (((producto.Precio - producto.Costo) / producto.Costo) * 100);
+            this.producto.Ganancia = Math.Round(producto.Ganancia, 2);
+        }
+    }
+    private void GananciaChanged()
+    {
+        this.producto.Precio = ((producto.Costo*producto.Ganancia)/100)+producto.Costo;
+    }
     private void AgregarDetalle()
     {
         this.producto.ProductoDetalles.Add(this.productoDetalle);
@@ -223,16 +245,29 @@
     }
     public void Guardar()
     {
-        this.producto.Ganancia = (((producto.Precio - producto.Costo) / producto.Costo) * 100);
-        this.producto.Ganancia = Math.Round(producto.Ganancia, 2);
-        this.producto.ValorInventario = (producto.Existencia * producto.Costo);
-        bool seGuardo = productosBLL.Guardar(producto);
-        if (seGuardo)
+        var producto2 = productosBLL.ExisteDescripcion(producto.Descripcion);
+        if(producto2==null) //si no existe
         {
-            toastService.ShowSuccess("Se guardó exitosamente");
+            if (productosBLL.Guardar(producto))
+                toastService.ShowSuccess("Se guardó exitosamente");
+            else
+                toastService.ShowError("No se pudo guardar.");
+        }else // si existe
+        {
+            if(producto2.Descripcion.ToLower()==producto.Descripcion.ToLower() && producto2.ProductoId == producto.ProductoId) //si tienen misma ID y mismo descripcion es decir, si es el mismo producto
+            {
+                if (productosBLL.Guardar(producto))
+                    toastService.ShowSuccess("Se guardó exitosamente");
+                else
+                    toastService.ShowError("No se pudo guardar.");
+            }
+            else
+            {
+                toastService.ShowError("No se puede guardar el producto" +
+                $" ya que el producto con la descripcion \"{producto.Descripcion}\" está registrado." +
+                $"Verifique la consulta de productos con el siguiente ID: {producto2.ProductoId}");
+            }
         }
-        else
-            toastService.ShowError("No se pudo guardar.");
     }
     private void Eliminar()
     {

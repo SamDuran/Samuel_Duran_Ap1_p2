@@ -25,6 +25,26 @@ namespace DAL
             }
             return existe;
         }
+        public Empacados? ExisteConcepto(string concepto)
+        {
+            Empacados? empacado;
+
+            try
+            {
+                empacado = _contexto.Empacados
+                .Include( e => e.ProductosUtilizados)
+                .Where( e => e.Concepto.ToLower() == concepto.ToLower())
+                .Include( x => x.ProductosUtilizados)
+                .ThenInclude( x => x.producto)
+                .ThenInclude( x => x.ProductoDetalles)
+                .AsNoTracking()
+                .SingleOrDefault();
+            }catch
+            {
+                throw;
+            }
+            return empacado;
+        }
         public bool Guardar(Empacados empacado)
         {
             if (Existe(empacado.EmpacadosId))
@@ -43,8 +63,17 @@ namespace DAL
                     _contexto.Entry(utilizado).State = EntityState.Added;
                     _contexto.Entry(utilizado.producto).State = EntityState.Modified;
                     utilizado.producto.Existencia -= utilizado.Cantidad;
+                    //recalculamos el valorInventario
+                    utilizado.producto.ValorInventario = utilizado.producto.Costo * utilizado.producto.Existencia; 
                 }
-                var producido = _contexto.Productos.Find(empacado.ProductoId).Existencia += empacado.Cantidad;
+                var producido = _contexto.Productos.Find(empacado.ProductoId);
+                
+                if(producido!=null)
+                {
+                    producido.Existencia += empacado.Cantidad;
+                    producido.ValorInventario = producido.Costo * producido.Existencia;
+                }
+                
                 paso = _contexto.SaveChanges() > 0;
             }
             catch (Exception)
@@ -65,26 +94,45 @@ namespace DAL
                 .ThenInclude(x => x.producto)
                 .AsNoTracking()
                 .SingleOrDefault();
-
-                foreach (var utilizado in empacadoAnterior.ProductosUtilizados)
+                if(empacadoAnterior!=null)
                 {
-                    utilizado.producto.Existencia += utilizado.Cantidad;
+                    foreach (var utilizado in empacadoAnterior.ProductosUtilizados)
+                    {
+                        utilizado.producto.Existencia += utilizado.Cantidad;
+                        utilizado.producto.ValorInventario = utilizado.producto.Costo;
+                    }
+                    
+                    var producido = _contexto.Productos.Find(empacado.ProductoId);
+
+                    if(producido!=null)
+                    {
+                        producido.Existencia -= empacado.Cantidad;
+                        producido.ValorInventario = producido.Costo* producido.Existencia;
+                    }
+                    _contexto.Database.ExecuteSqlRaw($"Delete FROM ProductosUtilizados where EmpacadosId={empacado.EmpacadosId}");
+
+
+
+                    foreach (var item in empacado.ProductosUtilizados)
+                    {
+                        _contexto.Entry(item).State = EntityState.Added;
+                        _contexto.Entry(item.producto).State = EntityState.Modified;
+
+                        item.producto.Existencia -= item.Cantidad;
+                        item.producto.ValorInventario = item.producto.Costo*item.producto.Existencia;
+                    }
+
+                    var producido2 = _contexto.Productos.Find(empacado.ProductoId);
+
+                    if(producido2!=null)
+                    {
+                        producido2.Existencia += empacado.Cantidad; 
+                        producido2.ValorInventario = producido2.Costo*producido2.Existencia;
+                    }
+
+                    _contexto.Entry(empacado).State = EntityState.Modified;
+                    paso = _contexto.SaveChanges() > 0;
                 }
-                var producido = _contexto.Productos.Find(empacado.ProductoId).Existencia -= empacado.Cantidad;
-                _contexto.Database.ExecuteSqlRaw($"Delete FROM ProductosUtilizados where EmpacadosId={empacado.EmpacadosId}");
-
-
-
-                foreach (var item in empacado.ProductosUtilizados)
-                {
-                    _contexto.Entry(item).State = EntityState.Added;
-                    _contexto.Entry(item.producto).State = EntityState.Modified;
-
-                    item.producto.Existencia -= item.Cantidad;
-                }
-                var producido2 = _contexto.Productos.Find(empacado.ProductoId).Existencia += empacado.Cantidad;
-                _contexto.Entry(empacado).State = EntityState.Modified;
-                paso = _contexto.SaveChanges() > 0;
             }
             catch (Exception)
             {
@@ -122,13 +170,21 @@ namespace DAL
                 var empacado = _contexto.Empacados.Find(id);
                 if (empacado != null)
                 {
+                    var producido = _contexto.Productos.Find(empacado.ProductoId);
+                    if(producido != null)
+                    {
+                        producido.Existencia -= empacado.Cantidad;
+                        producido.ValorInventario = producido.Existencia * producido.Costo;
+                    }
                     foreach (var utilizado in empacado.ProductosUtilizados)
                     {
+                        _contexto.Entry(utilizado.Empacado).State = EntityState.Modified;
                         _contexto.Entry(utilizado.producto).State = EntityState.Modified;
 
                         utilizado.producto.Existencia += utilizado.Cantidad;
+                        utilizado.producto.ValorInventario  = utilizado.producto.Existencia * utilizado.producto.Costo;
                     }
-                    var producido = _contexto.Productos.Find(empacado.ProductoId).Existencia -= empacado.Cantidad;
+
                     _contexto.Empacados.Remove(empacado);
                     paso = _contexto.SaveChanges() > 0;
                 }

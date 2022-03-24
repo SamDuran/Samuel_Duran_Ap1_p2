@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Samuel_Duran_Ap2_p2_.Migrations
 {
-    public partial class inicial : Migration
+    public partial class Inicial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -39,7 +39,7 @@ namespace Samuel_Duran_Ap2_p2_.Migrations
                     ValorInventario = table.Column<decimal>(type: "TEXT", nullable: false),
                     Precio = table.Column<decimal>(type: "TEXT", nullable: false),
                     Ganancia = table.Column<decimal>(type: "TEXT", nullable: false),
-                    FechaVencimiento = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    FechaRegistro = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -76,7 +76,6 @@ namespace Samuel_Duran_Ap2_p2_.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Cantidad = table.Column<decimal>(type: "TEXT", nullable: false),
                     EmpacadosId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Descripcion = table.Column<string>(type: "TEXT", nullable: false),
                     ProductoId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>

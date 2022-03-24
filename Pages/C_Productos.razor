@@ -65,7 +65,7 @@
                     <th>Precio</th>
                     <th>Ganancia</th>
                     <th>Peso (Gr)</th>
-                    <th>Fecha Vencimiento</th>
+                    <th>Fecha Registro</th>
                 </tr>
             </thead>
             <tbody>
@@ -76,7 +76,7 @@
                 {
                     @foreach (var item in lista)
                     {
-                        Fecha = DateOnly.FromDateTime(item.FechaVencimiento);
+                        Fecha = DateOnly.FromDateTime(item.FechaRegistro);
                         <tr>
                             <td>@item.ProductoId</td>
                             <td>@item.Descripcion</td>
@@ -125,9 +125,9 @@
                 case "0":
                     int ID = Utilities.ToIntConsulta(Criterio); 
                     if (ID == -1)
-                        lista = productosBLL.GetList(p => p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <= fechaHasta);
+                        lista = productosBLL.GetList(p => p.FechaRegistro >= fechaDesde && p.FechaRegistro <= fechaHasta);
                     else
-                        lista = productosBLL.GetList(p => (p.ProductoId == ID && p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <=
+                        lista = productosBLL.GetList(p => (p.ProductoId == ID && p.FechaRegistro >= fechaDesde && p.FechaRegistro <=
                         fechaHasta));
                     break;
                 case "1":
@@ -136,48 +136,48 @@
                 case "2":
                     decimal Existencia = Utilities.ToDecimal(Criterio);
                     if (Existencia == -1)
-                        lista = productosBLL.GetList(p => p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <= fechaHasta);
+                        lista = productosBLL.GetList(p => p.FechaRegistro >= fechaDesde && p.FechaRegistro <= fechaHasta);
                     else
-                        lista = productosBLL.GetList(p => (p.Existencia == Existencia && p.FechaVencimiento >= fechaDesde && p.FechaVencimiento
+                        lista = productosBLL.GetList(p => (p.Existencia == Existencia && p.FechaRegistro >= fechaDesde && p.FechaRegistro
                         <= fechaHasta));
                     break;
                 case "3":
                     decimal Costo = Utilities.ToDecimal(Criterio);
                     if (Costo == -1)
-                        lista = productosBLL.GetList(p => p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <= fechaHasta);
+                        lista = productosBLL.GetList(p => p.FechaRegistro >= fechaDesde && p.FechaRegistro <= fechaHasta);
                     else
-                        lista = productosBLL.GetList(p => (p.Costo == Costo && p.FechaVencimiento >= fechaDesde && p.FechaVencimiento
+                        lista = productosBLL.GetList(p => (p.Costo == Costo && p.FechaRegistro >= fechaDesde && p.FechaRegistro
                         <= fechaHasta));
                     break;
                 case "4":
                     decimal ValorInventario = Utilities.ToDecimal(Criterio);
                     if (ValorInventario == -1)
-                        lista = productosBLL.GetList(p => p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <= fechaHasta);
+                        lista = productosBLL.GetList(p => p.FechaRegistro >= fechaDesde && p.FechaRegistro <= fechaHasta);
                     else
-                        lista = productosBLL.GetList(p => (p.ValorInventario == ValorInventario && p.FechaVencimiento >= fechaDesde &&
-                        p.FechaVencimiento <= fechaHasta));
+                        lista = productosBLL.GetList(p => (p.ValorInventario == ValorInventario && p.FechaRegistro >= fechaDesde &&
+                        p.FechaRegistro <= fechaHasta));
                     break;
                 case "5":
                     decimal Precio = Utilities.ToDecimal(Criterio);
                     if (Precio == -1)
-                        lista = productosBLL.GetList(p => p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <= fechaHasta);
+                        lista = productosBLL.GetList(p => p.FechaRegistro >= fechaDesde && p.FechaRegistro <= fechaHasta);
                     else
-                        lista = productosBLL.GetList(p => (p.Precio == Precio && p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <=
+                        lista = productosBLL.GetList(p => (p.Precio == Precio && p.FechaRegistro >= fechaDesde && p.FechaRegistro <=
                         fechaHasta));
                     break;
                 case "6":
                     decimal Ganancia = Utilities.ToDecimal(Criterio);
                     if (Ganancia == -1)
-                        lista = productosBLL.GetList(p => p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <= fechaHasta);
+                        lista = productosBLL.GetList(p => p.FechaRegistro >= fechaDesde && p.FechaRegistro <= fechaHasta);
                     else
-                        lista = productosBLL.GetList(p => (p.Ganancia == Ganancia && p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <=
+                        lista = productosBLL.GetList(p => (p.Ganancia == Ganancia && p.FechaRegistro >= fechaDesde && p.FechaRegistro <=
                         fechaHasta));
                     break;
             }
         }
         else
         {
-            lista = productosBLL.GetList(p => p.FechaVencimiento >= fechaDesde && p.FechaVencimiento <=
+            lista = productosBLL.GetList(p => p.FechaRegistro >= fechaDesde && p.FechaRegistro <=
             fechaHasta);
         }
     }

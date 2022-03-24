@@ -17,5 +17,10 @@ namespace Entidades
         public virtual List<ProductosUtilizados> ProductosUtilizados {get;set;} = new List<ProductosUtilizados>();
         public int ProductoId { get; set; }
 
+        public Empacados()
+        {
+            Concepto=String.Empty;
+            FechaIngreso = DateTime.Today;
+        }
     }
 }

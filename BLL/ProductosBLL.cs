@@ -24,6 +24,24 @@ namespace BLL
             }
             return existe;
         }
+        public Productos? ExisteDescripcion(string Descripcion)
+        {
+            Productos? existe;
+
+            try
+            {
+                existe = _contexto.Productos
+                .Include(x => x.ProductoDetalles)
+                .AsNoTracking()
+                .Where( p => p.Descripcion.ToLower() == Descripcion.ToLower())
+                .AsNoTracking()
+                .SingleOrDefault();
+            }catch
+            {
+                throw;
+            }
+            return existe;
+        }
         public bool Guardar (Productos producto)
         {
             if(Existe(producto.ProductoId))
@@ -65,7 +83,7 @@ namespace BLL
             }
             return paso;
         }
-        public Productos Buscar(int Id)
+        public Productos? Buscar(int Id)
         {
             Productos? producto;
             try

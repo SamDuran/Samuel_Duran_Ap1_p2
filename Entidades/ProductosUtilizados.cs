@@ -10,10 +10,10 @@ namespace Entidades{
         public int Id { get; set; }
         public decimal Cantidad { get; set; }
         public int EmpacadosId {get;set;}
-        public string Descripcion {get;set;}
 
         [ForeignKey("ProductoId")] 
         public Productos producto {get;set;} = new Productos();
+        public Empacados Empacado { get; set; } = new Empacados();
 
     }
 }

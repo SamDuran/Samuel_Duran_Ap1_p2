@@ -88,6 +88,13 @@
     {
         filtro="0";
         listaProductos = productosBLL.GetList(p => true);
+        foreach (var producto in listaProductos)
+        {
+            foreach (var Detalle in producto.ProductoDetalles)
+            {
+                conteo++;
+            }
+        }
     }
     private void Buscar()
     {

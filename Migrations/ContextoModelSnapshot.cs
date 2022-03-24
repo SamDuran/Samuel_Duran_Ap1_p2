@@ -86,7 +86,7 @@ namespace Samuel_Duran_Ap2_p2_.Migrations
                     b.Property<decimal>("Existencia")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("FechaVencimiento")
+                    b.Property<DateTime>("FechaRegistro")
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("Ganancia")
@@ -115,10 +115,6 @@ namespace Samuel_Duran_Ap2_p2_.Migrations
                     b.Property<decimal>("Cantidad")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Descripcion")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("EmpacadosId")
                         .HasColumnType("INTEGER");
 
@@ -145,7 +141,7 @@ namespace Samuel_Duran_Ap2_p2_.Migrations
 
             modelBuilder.Entity("Entidades.ProductosUtilizados", b =>
                 {
-                    b.HasOne("Entidades.Empacados", null)
+                    b.HasOne("Entidades.Empacados", "Empacado")
                         .WithMany("ProductosUtilizados")
                         .HasForeignKey("EmpacadosId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -156,6 +152,8 @@ namespace Samuel_Duran_Ap2_p2_.Migrations
                         .HasForeignKey("ProductoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Empacado");
 
                     b.Navigation("producto");
                 });

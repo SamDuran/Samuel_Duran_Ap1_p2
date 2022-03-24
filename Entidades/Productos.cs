@@ -32,9 +32,15 @@ namespace Entidades
         public decimal Precio { get; set; }
         public decimal Ganancia { get; set; }
 
-        public DateTime FechaVencimiento { get; set; }
+        public DateTime FechaRegistro { get; set; }
 
         [ForeignKey("ProductoId")]
         public virtual List<ProductoDetalles> ProductoDetalles { get; set; } = new List<ProductoDetalles>();
+
+        public Productos()
+        {
+            FechaRegistro = DateTime.Today;
+            Descripcion = string.Empty;
+        }
     }
 }
