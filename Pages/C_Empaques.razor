@@ -70,6 +70,7 @@
                     {
                         Fecha = DateOnly.FromDateTime(item.FechaIngreso);
                         producido = productosBLL.Buscar(item.ProductoId);
+                        if(producido==null)break;
                         <tr>
                             <td>@item.EmpacadosId</td>
                             <td>@item.Concepto</td>

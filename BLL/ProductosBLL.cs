@@ -91,6 +91,7 @@ namespace BLL
                 producto = _contexto.Productos
                 .Include(x => x.ProductoDetalles)
                 .Where( p => p.ProductoId == Id)
+                .Include( p => p.ProductoDetalles)
                 .AsNoTracking()
                 .SingleOrDefault();
             }

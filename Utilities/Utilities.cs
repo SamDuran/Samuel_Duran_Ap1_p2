@@ -6,7 +6,7 @@ namespace Utilities
 {
     public partial class Utilities
     {
-        public static decimal ToDecimal(string criterio)
+        public static decimal ToDecimal(string? criterio)
         {
             if(!string.IsNullOrEmpty(criterio) || !string.IsNullOrWhiteSpace(criterio))
             {
@@ -30,7 +30,7 @@ namespace Utilities
                 return -1;
             }
         }
-        public static int ToIntConsulta(string criterio)
+        public static int ToIntConsulta(string? criterio)
         {
             if(!string.IsNullOrEmpty(criterio) || !string.IsNullOrWhiteSpace(criterio))
             {

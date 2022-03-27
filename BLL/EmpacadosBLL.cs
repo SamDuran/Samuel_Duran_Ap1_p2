@@ -57,23 +57,23 @@ namespace DAL
             bool paso = false;
             try
             {
-                _contexto.Empacados.Add(empacado);
-                foreach (var utilizado in empacado.ProductosUtilizados)
+                foreach (var utilizado in empacado.ProductosUtilizados) //Por cada producto utilizado en mi empaque
                 {
-                    _contexto.Entry(utilizado).State = EntityState.Added;
-                    _contexto.Entry(utilizado.producto).State = EntityState.Modified;
+                    _contexto.Entry(utilizado).State = EntityState.Added; //Se dice que se añade el utilizado al empaque
+                    _contexto.Entry(utilizado.producto).State = EntityState.Modified;  // Se dice que el producto es modificado
+                    //Reducimos la existencia
                     utilizado.producto.Existencia -= utilizado.Cantidad;
-                    //recalculamos el valorInventario
+                    //Recalculamos el valorInventario
                     utilizado.producto.ValorInventario = utilizado.producto.Costo * utilizado.producto.Existencia; 
                 }
                 var producido = _contexto.Productos.Find(empacado.ProductoId);
                 
-                if(producido!=null)
+                if(producido != null)
                 {
                     producido.Existencia += empacado.Cantidad;
                     producido.ValorInventario = producido.Costo * producido.Existencia;
                 }
-                
+                _contexto.Empacados.Add(empacado);
                 paso = _contexto.SaveChanges() > 0;
             }
             catch (Exception)
@@ -92,6 +92,7 @@ namespace DAL
                 .Where(x => x.EmpacadosId == empacado.EmpacadosId)
                 .Include(x => x.ProductosUtilizados)
                 .ThenInclude(x => x.producto)
+                .ThenInclude(x => x.ProductoDetalles)
                 .AsNoTracking()
                 .SingleOrDefault();
                 if(empacadoAnterior!=null)

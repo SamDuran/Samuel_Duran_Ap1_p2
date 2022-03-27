@@ -163,11 +163,11 @@
     public ProductosBLL productosBLL { get; set; }
     [Inject]
     public EmpacadosBLL empacadosBLL { get; set; }
-    private string? numeroId { get; set; } = "";
-    private decimal PesoTotal {get; set; } = 0;
+    public string? numeroId { get; set; } = "";
+    public decimal PesoTotal {get; set; } = 0;
     public Empacados empacado { get; set; } = new Empacados();
     public List<Productos> listaProducto { get; set; } = new List<Productos>();
-    public Productos producto { get; set; } = new Productos();
+    public Productos? producto { get; set; } = new Productos();
     public ProductosUtilizados utilizado { get; set; } = new ProductosUtilizados();
 
     protected override void OnInitialized()
@@ -190,8 +190,8 @@
     public void AgregarUtilizado()
     {
         this.producto = productosBLL.Buscar(Utilities.ToIntConsulta(numeroId));
-        this.utilizado.producto = producto;
-        this.utilizado.Id = producto.ProductoId;
+        this.utilizado.producto= (producto!=null)?producto : new Productos();
+        this.utilizado.Id = (producto!=null)?producto.ProductoId: 0;
         empacado.Peso += utilizado.Cantidad*utilizado.producto.Peso;
         bool esta = empacado.ProductosUtilizados.Any(p => p.Id == utilizado.Id);
         if (!esta) //si es nuevo se agrega como tal
@@ -276,7 +276,7 @@
     public bool Validar()
     {
         Productos? producido = productosBLL.Buscar(this.empacado.ProductoId);
-        if (empacado.Peso >= producido.Peso*empacado.Cantidad) 
+        if (producido != null && empacado.Peso >= producido.Peso*empacado.Cantidad) 
             return true;
         else
             return false;

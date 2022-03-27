@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Samuel_Duran_Ap2_p2_.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20220324031958_Inicial")]
-    partial class Inicial
+    [Migration("20220327231549_inicial")]
+    partial class inicial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
